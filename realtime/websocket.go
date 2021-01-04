@@ -236,8 +236,13 @@ func Connect(ctx context.Context, ch chan Response, channels, symbols []string, 
 				res.Results = fmt.Errorf("%v", string(msg))
 			}
 
-			ch <- res
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
 
+			ch <- res
 		}
 	}()
 
@@ -333,6 +338,12 @@ func ConnectForPrivate(ctx context.Context, ch chan Response, key, secret string
 			default:
 				res.Type = UNDEFINED
 				res.Results = fmt.Errorf("%v", string(msg))
+			}
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
 			}
 
 			ch <- res
